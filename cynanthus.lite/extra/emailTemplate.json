@@ -6,10 +6,10 @@
   },
   "subject": "Notificación de temperatura",
   "to": [
-    "hardbreakzer@gmail.com"
+    "destinatario@gmail.com"
   ],
   "cc": null,
   "bcc": null,
-  "body": "La temperatura sensada por el nodo {mac} es de {temp} grados. Ha superado el limite de {tempLimit} grados.",
+  "body": "La temperatura sensada por el nodo {mac} es de {temp} grados. Ha superado el límite de {tempLimit} grados.",
   "attachments": null
 }

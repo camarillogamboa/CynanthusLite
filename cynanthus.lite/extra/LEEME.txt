@@ -86,7 +86,5 @@ Para usar los servicios de google con esta aplicación, considere lo siguiente:
 Para ejecutar la aplicación:
     -Se requiere mínimo java 11
     -Posicionarse en el directorio raiz de la aplicación
-    -Ejecutar para windows: java "@lite.jcmd" std-out
-    -Ejecutar para sistemas basados en unix (linux o mac): java unix_lite.jcmd std-out
-    -La opción std-out sirve para indicar a la aplicación que debe imprimir los mensages que genere, si esto
-     no es requerido, puede omitirse.
+    -Ejecutar para windows: java "@lite.jcmd"
+    -Ejecutar para sistemas basados en unix (linux o mac): java unix_lite.jcmd
