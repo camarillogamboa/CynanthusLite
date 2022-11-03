@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "Content-type": "text/HTML; charset=UTF-8",
+    "format": "flowed",
+    "Content-Transfer-Encoding": "8bit"
+  },
+  "subject": "Notificación de temperatura",
+  "to": [
+    "hardbreakzer@gmail.com"
+  ],
+  "cc": null,
+  "bcc": null,
+  "body": "La temperatura sensada por el nodo {mac} es de {temp} grados. Ha superado el limite de {tempLimit} grados.",
+  "attachments": null
+}

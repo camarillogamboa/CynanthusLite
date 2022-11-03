@@ -1,0 +1,92 @@
+Cynanthus Lite
+
+La aplicación organiza los archivos de configuración y logs en el subdirectorio "cynanthus.lite".
+
+Función principal: Notificar el aumento de la temperatura en una sala sensada
+Vía de notificación: Email
+
+Flujo de operación: La aplicación inicia un servidor web que se pone en espera de peticiones con muestras de sensado.
+Cuando una muestra llega al servidor, esta primero pasa por un filtro de validación de datos, luego, los valores
+en la muestra son actualizados en la aplicación y se toma el valor de la temperatura para evaluar si esta ha rebasado el
+límite mínimo establecido por el usuario. Si la temperatura ha rebasado el límite, se enviará una noticación de correo
+electrónico al o los detinatarios establecidos por el usuario. No se hará nada en caso contrario.
+
+Para configurar la app, basta con editar el archivo properties.conf. Establezca un usuario (dirección de correo
+electrónico de origen) y una contraseña por medio de las propiedades:
+    -cynanthus.lite.notificationSender.username
+    -cynanthus.lite.notificationSender.password
+
+Otra propiedad que es importante establecer antes de ejecutar la aplicación es "cynanthus.lite.webServer.nodeMac", ya
+que con el valor de esta se aplica un filtro dejando pasar únicamente las muestras del dispositivo con dicha mac.
+Las demás propiedades pueden dejarse como están, pero considere leer sus descripciones por si le resulta útil cambiar
+algún valor.
+
+Considere configurar el archivo "javamail.properties". En este se establecen las propiedades para el API de JavaMail.
+Por defecto se han establecido propiedades para trabajar con el protocolo SMTP utilizando el servidor de google, pero
+usted tiene la libertad de quitar o agregar propiedades válidas para el API. Si desea utilizar el servidor de google,
+deje la configuración tal cual está.
+
+Para personalizar el email que será enviado como notificación de temperatura, utilize la plantilla en el archivo
+"emailTemplate.json". La plantilla debe ser especificada bajo el siguiente formato:
+{
+    "headers":{
+        "Content-type": "text/HTML; charset=UTF-8"              //Cabezeros que se incluiran en el email. Puede establecerlo en null
+    },
+    "subject":"Asunto del correo electrónico",                  //No puede ser nulo y de preferencia no estar vacío
+    "to":["destinatario1@mail.com","destinatario2@mail.com"],   //Destinatarios principales. No puede ser nulo y debe contener al menos un elemento.
+    "cc":["cc1@mail.com","cc2@mail.com"],                       //Copia a otros destinatarios. Puede ser nulo o estar vacío.
+    "bcc":["bcc1@mail.com","bcc2@mail.com"],                    // Copia oculta a otros destinatarios. Puede ser nulo o estar vacío.
+    "body":"Texto del cuerpo del correo",                       //No puede ser nulo ni estar vacío.
+    "attachments":["archivoAdjunto1.txt","archivoAdjunto2.txt"] // Ruta a archivos adjuntos al correo (recuerde que el tamaño de los archivos está sujeto a las reglas establecidas por el servidor de correo a utilizar). Puede ser nulo o estar vacío.
+}
+
+Puede usar etiquetas para incrustar valores en los datos de la plantilla. Por ejemplo, si quiere crear un mensaje
+de notificación que en el cuerpo diga: "La temperatura es: 24.0 grados", utilize la etiqueta "{temp}" de la siguiente forma:
+"La temperatura es {temp} grados". Por el momento la aplicación dispone de las siguientes etiquetas al momento de generar
+el email de notificación:
+    {temp}: Indica la temperatura más reciente actualizada por el dispositivo de sensado.
+    {rssi}: Intensidad de señal wifi actualizada por el dispositivo de sensado.
+    {mac}:  Mac del disposivo del sensado
+    {tempLimit}: Límite de temperatura mínima establecida por el usuario.
+
+Las etiquetas pueden ser utilizadas en todos los valores de los campos de la plantilla. Pero cobran mayor sentido
+al escribir el asunto y el cuerpo del email. Vea el siguiente ejemplo:
+{
+  "headers": {
+    "Content-type": "text/HTML; charset=UTF-8",
+    "format": "flowed",
+    "Content-Transfer-Encoding": "8bit"
+  },
+  "subject": "¡Temperatura mínima de {tempLimit} grados, sobrepasada!",
+  "to": [
+    "detinatario@mail.com"
+  ],
+  "cc": null,
+  "bcc": null,
+  "body": "La temperatura sensada por el nodo {mac} es de {temp} grados. Ha superado el límite de {tempLimit} grados",
+  "attachments": null
+}
+
+Permita a un dispositivo de sensado enviar muestras usando el protocolo HTTP al End-Point /cynanthus/lite/sample
+La muestra tomada del área de sensado debe ir en el cuerpo de una petición de tipo POST en formato Json,
+considerando los campos y formato siguientes:
+{
+    "rssi":-45, //Intensidad de señal wifi recibida por el dispositivo de sensado, este valor puede omitirlo enviando el valor 0. El valor debe ser siempre negativo y distinto de null
+    "mac":"00:00:00:00:00:00", //Mac (dirección física) del dispositivo. Considere enviarla siempre, sobre todo si activa el filtrado por mac en la aplicación. El valor no debe ser nulo
+    "temp":"29.0" //Temperatura sensada, debe ser un número positivo (se admiten decimales). El valor no debe ser nulo y negativo
+}
+
+Aclaración: no es necesario incluir algún cabezero de petición. Cualquier cabezero enviado será ignorado.
+
+Para usar los servicios de google con esta aplicación, considere lo siguiente:
+    -Tener habilitada la seguridad en 2 pasos.
+    -Generar una contraseña de aplicación.
+    -utilizar su dirección de correo electrónico y contraseña de aplicación.
+
+Para ejecutar la aplicación:
+    -Se requiere mínimo java 11
+    -Posicionarse en el directorio raiz de la aplicación
+    -Ejecutar para windows: java "@lite.jcmd" std-out
+    -Ejecutar para sistemas basados en unix (linux o mac): java unix_lite.jcmd std-out
+    -La opción std-out sirve para indicar a la aplicación que debe imprimir los mensages que genere, si esto
+     no es requerido, puede omitirse.
